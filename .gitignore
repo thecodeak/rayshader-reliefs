@@ -32,3 +32,7 @@ $null
 # Local agent settings
 .claude/
 .abacusai/
+
+# Design files (large; kept locally)
+*.ai
+*.psd

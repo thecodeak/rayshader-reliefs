@@ -1,0 +1,34 @@
+# Downloaded data — every script fetches what it needs on first run
+*.zip
+*.tif
+*.tiff
+*.hdr
+*.gpkg
+*.gz
+*.raw
+*.rds
+*.pdf
+dem_cache/
+gadm/
+histbasemaps/
+ne_*/
+HydroRIVERS_*/
+
+# Renders and reference images
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# Local scratch, logs and backups
+_*
+*.log
+*.bak
+$null
+.Rhistory
+.RData
+.Rproj.user/
+
+# Local agent settings
+.claude/
+.abacusai/

@@ -55,12 +55,12 @@ typography, match that image.
 |---|---|---|---|---|
 | Switzerland | `CHE` | Swiss oblique Mercator (somerc) | — | 3D, good baseline |
 | Norway | `NOR` | `EPSG:25833` (UTM33N) | Svalbard, Jan Mayen, Bear I. | 3D, good |
-| Italy | `ITA` | `EPSG:32633` (UTM33N) | micro-islets < 50 km² | **2D — went off the rails, do not copy** |
+| Italy | `ITA` | `EPSG:32633` (UTM33N) | micro-islets < 50 km² | **2D — superseded, do not copy** |
 | Spain | `ESP` | `EPSG:25830` (UTM30N) | **Canary Islands** (keep mainland + Balearics) | 3D @ 2000px + cities |
 
 ## Rendering budget (hard-won)
 
-- **3D at ≤ 2000 px is tractable; 4000×4000 is not** on this machine.
+- **3D at ≤ 2000 px is tractable; 4000×4000 is not** on a typical workstation.
 - Keep the **shading matrix ~1000–1500 long side**; render the *image* at ~2000.
   Detail comes from `samples`, not from an enormous matrix.
 - **Do NOT resurrect the Italy 2D path** (`plot_map` + `box_blur` fake shadow +
@@ -117,11 +117,21 @@ coast dissolves into the background. Spain v2 does this.
 
 ## File naming
 
-`YYMMDD_rayshader_<country>.R`. Outputs: `<country>_carta.png` (raw render) →
+`YYMMDD_rayshader_<country>.R`, filed by kind:
+
+- `countries/` — modern country plates (Norway, Italy, Spain)
+- `forgotten-realms/` — the parametrised vanished-states script
+- `experiments/` — early one-offs outside the house style (France, Poland forests)
+
+Run every script **from the repo root** (`Rscript countries/260730_rayshader_spain.R`):
+data caches (`gadm/`, `ne_*/`, `HydroRIVERS_*/`, `dem_cache/`, the HDRI) and renders
+live there and are shared between scripts. `private/` is gitignored and never pushed.
+
+Outputs: `<country>_carta.png` (raw render) →
 `<country>_carta_final.png` (furnished). Keep intermediate `.rds`/shp caches in place.
 
 
-## Forgotten realms (`260730_rayshader_forgotten.R`)
+## Forgotten realms (`forgotten-realms/260730_rayshader_forgotten.R`)
 
 The point of the collection is no longer modern countries: it is **polities that no
 longer exist, drawn on the reliefs that outlived them** — the geography of Carthage did

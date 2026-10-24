@@ -36,3 +36,6 @@ $null
 # Design files (large; kept locally)
 *.ai
 *.psd
+
+# Private, never pushed (e.g. game-derived work)
+private/

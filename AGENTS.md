@@ -53,10 +53,12 @@ typography, match that image.
 
 | Country | ISO | CRS | Drop | Notes |
 |---|---|---|---|---|
-| Switzerland | `CHE` | Swiss oblique Mercator (somerc) | — | 3D, good baseline |
 | Norway | `NOR` | `EPSG:25833` (UTM33N) | Svalbard, Jan Mayen, Bear I. | 3D, good |
 | Italy | `ITA` | `EPSG:32633` (UTM33N) | micro-islets < 50 km² | **2D — superseded, do not copy** |
 | Spain | `ESP` | `EPSG:25830` (UTM30N) | **Canary Islands** (keep mainland + Balearics) | 3D @ 2000px + cities |
+
+Switzerland (Swiss oblique Mercator, the original 3D baseline) lives in
+[thecodeak/tolkien-1911-relief](https://github.com/thecodeak/tolkien-1911-relief).
 
 ## Rendering budget (hard-won)
 
@@ -120,86 +122,18 @@ coast dissolves into the background. Spain v2 does this.
 `YYMMDD_rayshader_<country>.R`, filed by kind:
 
 - `countries/` — modern country plates (Norway, Italy, Spain)
-- `forgotten-realms/` — the parametrised vanished-states script
 - `experiments/` — early one-offs outside the house style (France, Poland forests)
 
 Run every script **from the repo root** (`Rscript countries/260730_rayshader_spain.R`):
-data caches (`gadm/`, `ne_*/`, `HydroRIVERS_*/`, `dem_cache/`, the HDRI) and renders
+data caches (`gadm/`, `ne_*/`, `HydroRIVERS_*/`, the HDRI) and renders
 live there and are shared between scripts. `private/` is gitignored and never pushed.
 
 Outputs: `<country>_carta.png` (raw render) →
 `<country>_carta_final.png` (furnished). Keep intermediate `.rds`/shp caches in place.
 
+## Sister repositories
 
-## Forgotten realms (`forgotten-realms/260730_rayshader_forgotten.R`)
-
-The point of the collection is no longer modern countries: it is **polities that no
-longer exist, drawn on the reliefs that outlived them** — the geography of Carthage did
-not change, only the map did. One parametrised script does all of them.
-
-- **Borders:** `aourednik/historical-basemaps` — one GeoJSON sheet per year, `bc3000`
-  through `2010`, field `NAME`. Cached in `histbasemaps/`.
-  `https://raw.githubusercontent.com/aourednik/historical-basemaps/master/geojson/world_<year>.geojson`
-  Names are encoding-mangled (`AragĂłn`), so **match with an ASCII-safe regex** (`"^Arag"`)
-  and browse a sheet with the built-in `list_realms("bc200")`.
-- **Ancient settlements: use the curated gazetteer, not raw Pleiades.** The dump
-  (`https://atlantides.org/downloads/pleiades/dumps/pleiades-places-latest.csv.gz`) stacks
-  name variants behind slashes in `title` — `Gadeira/Gades/Col. Augusta Gaditana`,
-  `Carthago Nova/Col. Urbs Iulia` — so `str_replace("/.*$")` prints *Gadeira* for Gades
-  and *Ilici* where Carthago Nova belongs. Ranking by eras-survived then promotes
-  nobodies (Sexi, Monte Sirai, Turris Libisonis) over the cities that mattered. Worse,
-  **the bc300 border polygon excludes Carthage itself**, so `st_filter(realm_p)` drops
-  the capital of the map. Hence `PUNIC_GAZETTEER` in PART 0: hand-checked Pleiades
-  titles, coordinates and a `tier` (1 = capital, 2 = great cities, 3 = the network).
-  Duplicate titles (three Tipasas, three Olbias, two Sulcis) are pre-disambiguated by
-  coordinate. Realms carry it via `gazetteer = "PUNIC_GAZETTEER"`; without that field the
-  script falls back to the old Pleiades scoring, which is fine for a first look only.
-- **De-crowd on the shape of the word, not a circle.** A name is wide and short; a radius
-  large enough to stop `HIPPO REGIUS` hitting `CARTHAGO` also discards every city stacked
-  above them (11 kept where 26 fit). Use an axis-aligned box, width per character and
-  per tier. Overlay `cex`/`pch` are in *matrix pixels*, so scale them by
-  `TSCALE <- max(dim(m)) / 1400` or a 700-px draft is all blobs.
-- **Rivers: HydroRIVERS, cut on discharge.** Natural Earth 10m gives 24 lines in the whole
-  Carthage frame — decoration, not drainage. HydroRIVERS is the opposite problem: 62,000
-  reaches, every Saharan wadi included, painting the Atlas solid green. Filter
-  `DIS_AV_CMS >= 1` (a wadi is 0, so the desert empties itself) and cap at `RIVER_MAX`
-  strongest-flowing reaches so pen density is scale-invariant. Width from `ORD_FLOW`.
-  Packs are ~150 MB: never read them whole, `st_read(wkt_filter = ...)` pushes the frame
-  into the OGR driver. Region picked from the frame bbox (`af` / `eu`).
-- **No roads.** There is no clean vector source for Punic/Roman-era roads — the Portugal
-  reference has them, these plates do not. Do not fake them.
-- **Coastline:** `ne_10m_land` (`.../physical/ne_10m_land.zip`) → `ne_land/`. Do NOT rely
-  on `elevation < 0` for the sea; the DEM carries bathymetry and the Netherlands exist.
-- **CRS:** auto-fitted Albers Equal-Area (`+proj=aea`) with the standard parallels at 1/6
-  and 5/6 of the realm's latitude span — a realm can be any shape anywhere.
-- **Zoom:** auto `z = log2(2 * TARGET_MAX * 360 / (256 * span_deg))`, clamped 3–10.
-
-### Composition rules for a forgotten realm
-
-1. **Only the dead realm has relief.** Everything around it is a *flat old paper map*
-   — no hypsometry, no hillshade, just the sheet carrying coastlines, rivers and names,
-   exactly the way the neighbours of Spain are treated. `elev[is.na(realm_r)] <- 0`
-   before shading, then `paint(shaded, is_land & !in_realm, PAPER, 1)` to strip the
-   leftover shading off the tabletop. (The earlier 66% wash kept the neighbours in faint
-   relief and the plate read as one continuous DEM instead of a country on a map.)
-2. **No drawn border.** The relief edge *is* the frontier and throws its own contact
-   shadow onto the paper, so the ink line is redundant: `SHOW_BORDER <- FALSE`. Turn it
-   on only for realms whose frontier runs where there is no relief to see.
-3. The **sea is repainted after** `add_shadow`, otherwise coastal cliffs throw shadows
-   into the water and it goes muddy. `depth > -220 m` = shelf tone.
-4. **Engrave every coastline** (`INK_SOFT` lw 1.8 under `SEPIA` lw 0.9). The cream end of
-   the desert ramp sits at paper value, so without a drawn shore the coast dissolves.
-5. Stretch the ramp over the **realm's own** relief: `height_shade(range = c(0, ELEV_TOP))`
-   with `ELEV_TOP` = 98.5th percentile of in-realm elevation. Otherwise one Alpine
-   neighbour compresses the dead country into the cream end and the plate comes out grey.
-6. `BASEMAP_ONLY = TRUE` → the underlying relief plate, full-frame DEM, no borders or
-   labels at all (`<slug>_basemap.png`), for hand-drawing borders elsewhere.
-7. `exag` is **not** fully scale-free. A coarse grid has averaged its own slopes away, so
-   a 3000 km realm takes 45–55 while a 300 km one wants 25–30 for the same lightness.
-   Sun at altitude 55 / angle 315, `max_darken` .34 + .14 — past ~.45 total the ramp ashes.
-
-### Caching / staging (why the script is split in four)
-
-`PART 1` geometry → `PART 2` DEM to `dem_cache/<slug>_z<z>_t<target>.tif` → `PART 3`
-render → `PART 4` magick chrome, which re-reads the PNG from disk. Retuning typography
-must never cost a re-render.
+- `thecodeak/tolkien-1911-relief` — Switzerland and Tolkien's 1911 walk.
+- `thecodeak/forgotten-realms-relief` — vanished states on modern relief. Its `AGENTS.md`
+  copies the palette and rendering notes from this file; **this file is the source of
+  truth for the house style**, so carry palette changes over to it.

@@ -3,8 +3,9 @@
 #
 # Feedback-driven redesign:
 #   * The RENDER is JUST a clean floating relief + shadow (like the Swiss
-#     map): country clipped to NA outside → floats, real contact shadow,
-#     Portugal hypsometric palette, water + city dots draped on top.
+#     map, now in thecodeak/tolkien-1911-relief): country clipped to NA
+#     outside → floats, real contact shadow, Portugal hypsometric palette,
+#     water + city dots draped on top.
 #   * ALL the vintage "carta" chrome (title, legend, neighbour/sea names,
 #     border, grain) is POST-PROCESSING in magick — a separate block that
 #     reads the rendered PNG back from disk, so you can retune typography

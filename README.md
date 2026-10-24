@@ -9,12 +9,14 @@ A sketchbook of shaded-relief maps rendered in R with [rayshader](https://www.ra
 | `countries/` | `250728_rayshader_norway.R` | Norway, hypsometric relief on a vintage paper basemap |
 | | `250728_rayshader_italy.R` | Italy, *carta ipsometrica* (2D experiment) |
 | | `260730_rayshader_spain.R` | Spain, *carta hipsométrica* with the 1906 Portugal palette |
-| `forgotten-realms/` | `260730_rayshader_forgotten.R` | *Reinos olvidados*: vanished states (e.g. Carthage) drawn on today's relief, borders from a historical atlas |
 | `experiments/` | `251013_rayshader_france.R`, `251207_forest_types_poland.R` | Earlier experiments |
 
 `AGENTS.md` describes the house style and the canonical pipeline (`CLAUDE.md` imports it).
 
-**Switzerland and Tolkien's 1911 walk** has its own repository: [thecodeak/tolkien-1911-relief](https://github.com/thecodeak/tolkien-1911-relief).
+Sister projects in the same style, each in its own repository:
+
+- [thecodeak/tolkien-1911-relief](https://github.com/thecodeak/tolkien-1911-relief): Switzerland and Tolkien's 1911 walk
+- [thecodeak/forgotten-realms-relief](https://github.com/thecodeak/forgotten-realms-relief): *reinos olvidados*, vanished states (e.g. Carthage) drawn on today's relief
 
 ## Running
 
@@ -22,7 +24,7 @@ R 4.4+ with `pacman`. Run scripts **from the repository root**, e.g. `Rscript co
 
 ## Data
 
-Elevation via [elevatr](https://github.com/USEPA/elevatr) (AWS Terrain Tiles) · borders from [GADM](https://gadm.org/) · rivers from [HydroRIVERS](https://www.hydrosheds.org/products/hydrorivers) · lakes, land and places from [Natural Earth](https://www.naturalearthdata.com/) · historical borders from [aourednik/historical-basemaps](https://github.com/aourednik/historical-basemaps) · ancient places from [Pleiades](https://pleiades.stoa.org/) · lighting HDRIs from [Poly Haven](https://polyhaven.com/). Downloaded data and renders are not committed; each source keeps its own licence.
+Elevation via [elevatr](https://github.com/USEPA/elevatr) (AWS Terrain Tiles) · borders from [GADM](https://gadm.org/) · rivers from [HydroRIVERS](https://www.hydrosheds.org/products/hydrorivers) · lakes and places from [Natural Earth](https://www.naturalearthdata.com/) · lighting HDRIs from [Poly Haven](https://polyhaven.com/). Downloaded data and renders are not committed; each source keeps its own licence.
 
 ## Licence
 

@@ -8,9 +8,7 @@
 *.raw
 *.rds
 *.pdf
-dem_cache/
 gadm/
-histbasemaps/
 ne_*/
 HydroRIVERS_*/
 
